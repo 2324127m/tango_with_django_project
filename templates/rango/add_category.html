@@ -1,32 +1,34 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<title>Rango</title>
-	</head>
 
-	<body>
-		<h1>Add a Category</h1>
-		<div>
-			<!-- All data captured within this form is sent to /rango/add_category/ as a 
-				 HTTP Post request. Within the for we have two for loops 
-				 1. one controlling hidden form fields
-				 2. one controlling visible form fields
-				 These loops produce HTML markup for each form element. For visible form fields,
-				 we also add in any errors that may be present with a particular field and help
-				 text that can be used to explain to the user what he or she needs to enter
-			-->
-			<form id="category_form" method="post" action="/rango/add_category/">
-				{% csrf_token %}
-				{% for hidden in form.hidden_fields %}
-					{{ hidden }}
-				{% endfor %}
-				{% for field in form.visible_fields %}
-					{{ field.errors }}
-					{{ field.help_text }}
-					{{ field }}
-				{% endfor %}
-				<input type="submit" name="submit" value="Create Category"/>
-			</form>
-		</div>
-	</body>
-</html>
+{% extends 'rango/base.html' %}
+{% load staticfiles %}
+
+{% block title_block %}
+    Add a Category
+{% endblock %}
+
+{% block body_block %}
+    <h1>Add a Category</h1>
+    <div>
+        <!-- All data captured within this form is sent to /rango/add_category/ as a
+             HTTP Post request. Within the for we have two for loops
+             1. one controlling hidden form fields
+             2. one controlling visible form fields
+             These loops produce HTML markup for each form element. For visible form fields,
+             we also add in any errors that may be present with a particular field and help
+             text that can be used to explain to the user what he or she needs to enter
+        -->
+        <form id="category_form" method="post" action="{% url 'add_category' %}">
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            {% for field in form.visible_fields %}
+                {{ field.errors }}
+                {{ field.help_text }}
+                {{ field }}
+            {% endfor %}
+            <input type="submit" name="submit" value="Create Category"/>
+        </form>
+    </div>
+{% endblock %}
