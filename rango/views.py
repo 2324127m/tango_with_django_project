@@ -4,7 +4,7 @@ from django.http import HttpResponse
 
 # Import the Category and Page model
 from rango.models import Category, Page
-from rango.forms import CategoryForm, PageForm
+from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 
 
 def index(request):
@@ -111,3 +111,46 @@ def add_page(request, category_name_slug):
 	context_dict = {'form':form, "category":category}
 	return render(request, 'rango/add_page.html', context_dict)
 
+def register(request):
+	# tells template whether the registration was succesful
+	registered = False
+
+	if request.method == 'POST':
+		# attempt to grab info from raw form
+		user_form = UserForm(data=request.POST)
+		profile_form = UserProfileForm(data=request.POST)
+
+		if user_form.is_valid() and profile_form.is_valid():
+			# Save user form data
+			user = user_form.save()
+
+			# hash password with set_password method, once hashed, save it
+			user.set_password(user.password)
+			user.save()
+
+			# now let's sort out UserProfile instance, need to set user attributes ourselves
+			# so set commit=False, it will delay saving the model until we're ready
+			# avoids integrity problems
+
+			profile = profile_form.save(commit=False)
+			profile.user = user
+
+			# if they provided a pic, get it from input form and put it into UserProfile model
+			if 'picture' in request.FILES:
+				profile.picture = request.FILES['picture']
+
+			# save model instance
+			profile.save()
+
+			registered = True
+		else:
+			print(user_form.errors, profile_form.errors)
+	else:
+		# not a HTTP POST request, render again (Blank)
+		user_form = UserForm()
+		profile_form = UserProfileForm()
+
+	return render(request, 'rango/register.html',
+		{'user_form': user_form,
+		'profile_from': profile_form,
+		'registered': registered })
