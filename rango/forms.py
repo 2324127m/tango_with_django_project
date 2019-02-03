@@ -4,6 +4,7 @@ from rango.models import Page, Category, UserProfile
 
 max_length_char_field = 128
 
+
 class CategoryForm(forms.ModelForm):
 	name = forms.CharField(max_length=max_length_char_field, help_text="Please enter the category name.")
 	views = forms.IntegerField(widget=forms.HiddenInput(), initial=0)
@@ -35,8 +36,10 @@ class PageForm(forms.ModelForm):
 		# or specify the fields to include (i.e. dont include the category field)
 		# fields = ('title', 'url', 'views')
 
+
 class UserForm(forms.ModelForm):
 	password = forms.CharField(widget=forms.PasswordInput())
+
 	class Meta:
 		model = User
 		fields = ('username', 'email', 'password')
