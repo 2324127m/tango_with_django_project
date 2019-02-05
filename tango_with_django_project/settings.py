@@ -23,6 +23,9 @@ MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 # Redirect users that are not logged in, ensures login_required() decorator will redirect to /rango/login/
 LOGIN_URL = '/rango/login/'
 
+# Session info
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
