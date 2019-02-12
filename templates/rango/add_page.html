@@ -1,16 +1,15 @@
-<!DOCTYPE html>
-
 {% extends 'rango/base.html' %}
 {% load staticfiles %}
 
-{% block title_block %}
+{% block title %}
     Add a Page to {{ category.name }}
 {% endblock %}
 
 {% block body_block %}
-    <h1>Add a Page to {{ category.name }}</h1>
-    <div>
-        <form id="page_form" method="post" action="{% url 'add_page' category.slug %}">
+    {% if category %}
+
+        <form role="form" id="page_form" method="post" action="{% url 'add_page' category.slug %}">
+            <h2 class="form-signin-heading">Add a Page to <a href="{% url 'show_category' category.slug %}">{{ category.name }}</a></h2>
             {% csrf_token %}
             {% for hidden in form.hidden_fields %}
                 {{ hidden }}
@@ -20,9 +19,13 @@
                 {{ field.help_text }}
                 {{ field }}
             {% endfor %}
-            <input type="submit" name="submit" value="Add Page"/>
+        <br/>
+        {{form.non_field_errors}}
+        <button class="btn btn-primary" type="submit" name="submit">Add Page</button>
         </form>
-    </div>
+    {% else %}
+        <p>This category does not exist.</p>
+    {% endif %}
 {% endblock %}
 
 

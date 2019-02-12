@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse
+# from django.http import HttpResponse, HttpResponseRedirect
+# from django.core.urlresolvers import reverse
 
-from django.contrib.auth import authenticate, login, logout
+# from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
 # Import the Category and Page model
@@ -141,6 +141,7 @@ def add_page(request, category_name_slug):
 	return render(request, 'rango/add_page.html', context_dict)
 
 
+"""
 def register(request):
 	# tells template whether the registration was successful
 	registered = False
@@ -225,6 +226,7 @@ def user_logout(request):
 	# since we know they are logged in
 	logout(request)
 	return HttpResponseRedirect(reverse('index'))
+"""
 
 
 @login_required

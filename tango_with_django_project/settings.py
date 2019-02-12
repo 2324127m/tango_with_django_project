@@ -20,9 +20,6 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-# Redirect users that are not logged in, ensures login_required() decorator will redirect to /rango/login/
-LOGIN_URL = '/rango/login/'
-
 # Session info
 # SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
@@ -37,6 +34,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Registration Settings
+REGISTRATION_OPEN = True  # Can users register
+ACCOUNT_ACTIVATION_DAYS = 7  # 7 day activation window
+REGISTRATION_AUTO_LOGIN = True  # auto login upon registration
+LOGIN_REDIRECT_URL = '/rango/'  # land after login
+LOGIN_URL = '/accounts/login/'  # redirected if not logged in (login_required())
 
 # Application definition
 
@@ -47,7 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rango'
+    'rango',
+    'registration'
 ]
 
 MIDDLEWARE = [
