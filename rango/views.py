@@ -10,6 +10,7 @@ from rango.models import Category, Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 
 from datetime import datetime
+from rango.webhose_search import run_query
 
 
 def index(request):
@@ -263,3 +264,18 @@ def visitor_cookie_handler(request):
 
 	# Update/set the visits cookie
 	request.session['visits'] = visits
+
+
+def search(request):
+	result_list = []
+	context_dict = {}
+
+	if request.method == 'POST':
+		query = request.POST['query'].strip()
+		if query:
+			result_list = run_query(query)
+			context_dict['user_query'] = query
+
+	context_dict['result_list'] = result_list
+
+	return render(request, 'rango/search.html', context_dict)
