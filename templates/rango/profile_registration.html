@@ -1,0 +1,33 @@
+{% extends 'rango/base.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    Sign Up - Step 2
+{% endblock %}
+
+{% block body_block %}
+
+    <form role="form" id="page_form" method="post" action="{% url 'register_profile' %}"
+          enctype="multipart/form-data">
+
+        <h2 class="form-signin-heading">Sign Up - Step 2</h2>
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <!--<label for="id_website" class="sr-only">Website</label>
+        <input type="url" name="website" id="id_website" class="form-control" placeholder="Website URL"/>
+        {# form.website.errors }}
+         form.website.help_text }} #}
+
+        <label for="id_picture" class="sr-only">Select a profile image</label>
+        <input type="file" name="picture" id="id_picture"/>
+        {#   form.picture.errors }}
+         form.picture.help_text }}
+
+         form.non_field_errors #}-->
+
+        <button class="btn btn-primary" type="submit" name="submit">Sign Up</button>
+    </form>
+{% endblock %}
+
+

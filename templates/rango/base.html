@@ -32,15 +32,16 @@
 
     <div class="collapse navbar-collapse" id="navbar">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
+
+            {% if request.resolver_match.view_name == 'index' %}
+                <li class="nav-item active">{% else %}
+                <li class="nav-item">
+            {% endif %}
                 <a class="nav-link" href="{% url 'index' %}">Home</a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'about' %}">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'search' %}">Search</a>
             </li>
 
             {% if user.is_authenticated %}
@@ -58,6 +59,12 @@
 
             {% if user.is_authenticated %}
                 <li class="nav-item">
+                    <a class="nav-link" href="{% url 'list_profiles' %}">List Profiles</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'profile' user.username %}">My Profile</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'auth_password_change' %}">Change Password</a>
                 </li>
                 <li class="nav-item">
@@ -72,6 +79,9 @@
                     <a class="nav-link" href="{% url 'auth_login' %}">Log In</a>
                 </li>
             {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'index' %}../admin/">Admin</a>
+                </li>
         </ul>
     </div>
 </nav>

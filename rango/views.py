@@ -1,16 +1,17 @@
-from django.shortcuts import render
-# from django.http import HttpResponse, HttpResponseRedirect
-# from django.core.urlresolvers import reverse
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
+from django.core.urlresolvers import reverse
 
 # from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
 # Import the Category and Page model
-from rango.models import Category, Page
+from rango.models import Category, Page, User, UserProfile
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 
 from datetime import datetime
 from rango.webhose_search import run_query
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def index(request):
@@ -67,7 +68,7 @@ def show_category(request, category_name_slug):
 
 		# Retrieve all of the associated pages
 		# Note that filter() will return a list of pages or an empty list
-		pages = Page.objects.filter(category=category)
+		pages = Page.objects.filter(category=category).order_by('-views')
 
 		# Adds our results list to the template context under name pages
 		context_dict["pages"] = pages
@@ -80,6 +81,22 @@ def show_category(request, category_name_slug):
 		# the template will display the "no category" message for us
 		context_dict['category'] = None
 		context_dict['pages'] = None
+
+		# If category doesn't exist, return early
+		return render(request, 'rango/category.html', context_dict)
+
+	# Set query to be the default category name
+	context_dict['query'] = category.name
+	result_list = []
+
+	# Use Webhose to get results (from online)
+	if request.method == 'POST':
+		query = request.POST['query'].strip()
+		if query:
+			result_list = run_query(query)
+			context_dict['query'] = query
+
+	context_dict['result_list'] = result_list
 
 	# Go render the response and return it to the client
 	return render(request, 'rango/category.html', context_dict)
@@ -279,3 +296,98 @@ def search(request):
 	context_dict['result_list'] = result_list
 
 	return render(request, 'rango/search.html', context_dict)
+
+
+def track_url(request):
+	page_id = None
+	url = '/rango/'
+
+	if request.method == 'GET':
+		# Get request received
+		if 'page_id' in request.GET:
+			page_id = request.GET['page_id']
+			# Page ID found
+
+	if page_id:
+		try:
+			# get page object with page id, increment view and save
+			page = Page.objects.get(pk=page_id)
+			page.views += 1
+			page.save()
+
+			# redirect user to the page url
+			url = page.url
+
+		except ObjectDoesNotExist:
+			# Page ID was invalid, i.e. couldn't find page object
+			# return HttpResponse("Page id {0} not found".format(page_id))
+			pass
+
+	# if no parameter was found redirect user to homepage
+	return redirect(url)
+
+@login_required
+def register_profile(request):
+	form = UserProfileForm()
+
+	if request.method == 'POST':
+		form = UserProfileForm(request.POST, request.FILES)
+		if form.is_valid():
+			user_profile = form.save(commit=False)
+			user_profile.user = request.user
+			user_profile.save()
+
+			return redirect('index')
+		else:
+			print(form.errors)
+
+	context_dict = {"form": form}
+
+	return render(request, 'rango/profile_registration.html', context_dict)
+
+
+@login_required
+def profile(request, username):
+	# Get user, if doesn't exist -> redirect to home page
+	try:
+		user = User.objects.get(username=username)
+	except User.DoesNotExist:
+		return redirect('index')
+
+	# select user's profile instance or create a blank one
+	userprofile = UserProfile.objects.get_or_create(user=user)[0]
+
+	# populate UserProfileForm with selected user's details (template will use em
+	# if we are to display a form)
+	form = UserProfileForm(
+		{'website': userprofile.website, 'picture': userprofile.picture}
+	)
+
+	# did the user submit a form to update their account info?
+	if request.method == 'POST':
+		# extract form info that's able to reference to user profile instance that
+		# it is saving to, rather than creating a new instance each time
+		# i.e. update, not create!
+		# if statement checks if session logged in user is the user who is updating his profile
+		if str(request.user) == str(user.username):
+			print("true")
+			form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+			if form.is_valid():
+				form.save(commit=True)
+				return redirect('profile', user.username)
+			else:
+				print(form.errors)
+
+	return render(request, 'rango/profile.html', {
+		'userprofile': userprofile,
+		'selecteduser': user,
+		'form': form
+	})
+
+@login_required
+def list_profiles(request):
+	userprofile_list = UserProfile.objects.all()
+
+	return render(request, 'rango/list_profiles.html', {
+		'userprofile_list': userprofile_list
+	})

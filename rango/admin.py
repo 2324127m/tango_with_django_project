@@ -4,10 +4,11 @@ from rango.models import UserProfile
 
 
 class CategoryAdmin(admin.ModelAdmin):
-	prepopulated_fields = {'slug':('name',)}
+	prepopulated_fields = {'slug': ('name',)}
+
 
 class PageAdmin(admin.ModelAdmin):
-	list_display = ('category', 'title', 'url')
+	list_display = ('category', 'title', 'url', 'views')
 
 
 # Register your models here.
