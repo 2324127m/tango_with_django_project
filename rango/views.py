@@ -12,10 +12,13 @@ from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from datetime import datetime
 from rango.webhose_search import run_query
 from django.core.exceptions import ObjectDoesNotExist
+from registration.backends.simple.views import RegistrationView
+
+from django.views.generic import View
 
 
 def index(request):
-	request.session.set_test_cookie()
+	# request.session.set_test_cookie()
 	# Retrieve top 5 most viewed pages
 	page_list = Page.objects.order_by('-views')[:5]
 
@@ -43,17 +46,26 @@ def index(request):
 	return response
 
 
-def about(request):
-	if request.session.test_cookie_worked():
-		print("TEST COOKIE WORKED")
-		request.session.delete_test_cookie()
+class AboutView(View):
+	def get(self, request):
+		visitor_cookie_handler(request)
+		context_dict = {
+			'visits': request.session['visits']
+		}
+		return render(request, 'rango/about.html', context_dict)
+
+
+"""def about(request):
+	# if request.session.test_cookie_worked():
+	# print("TEST COOKIE WORKED")
+	# request.session.delete_test_cookie()
 
 	visitor_cookie_handler(request)
 	context_dict = {
 		'visits': request.session['visits']
 	}
 
-	return render(request, 'rango/about.html', context_dict)
+	return render(request, 'rango/about.html', context_dict)"""
 
 
 def show_category(request, category_name_slug):
@@ -245,6 +257,11 @@ def user_logout(request):
 	logout(request)
 	return HttpResponseRedirect(reverse('index'))
 """
+
+
+class MyRegistrationView(RegistrationView):
+	def get_success_url(self, user=None):
+		return reverse('register_profile')
 
 
 @login_required
